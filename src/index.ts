@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js'
+import BigNumber from 'bignumber.js';
 
 export type Params = {
   fn: (...inputs: any[]) => BigNumber;
@@ -57,7 +57,7 @@ const goalSeek = ({
     if (y1.isNaN()) throw IsNanError;
 
     // calculate the error
-    g = (y1.minus(y)).div(y);
+    g = y1.minus(y).div(y);
     if (g.eq(new BigNumber('0'))) g = new BigNumber('0.0001');
 
     // set the new guess based on the error, correcting for maxStep
