@@ -1,4 +1,4 @@
-# goal-seek
+# goal-seek-big-number
 
 goal-seek is a javascript library that can be used to solve for the value of an independent variable: "x"; of a function: "f(x)"; such that f(x) equals some defined goal. In other words: do you know the desired output of a function but not the input to yield such an output? If so, then use this goal seek!
 
@@ -6,9 +6,9 @@ Currently, this goal seek uses [Steffensen's Method](http://en.wikipedia.org/wik
 
 ## Installation
 
-`goal-seek` is an [npm package](https://www.npmjs.com/package/goal-seek), so installation is as easy as:
+`goal-seek-big-number` is an [npm package](https://www.npmjs.com/package/goal-seek-big-number), so installation is as easy as:
 
-`$ npm install --save goal-seek`
+`$ npm install --save goal-seek-big-number`
 
 ## Usage
 
@@ -19,12 +19,12 @@ export const IsNanError = TypeError('resulted in NaN');
 export const FailedToConvergeError = Error('failed to converge');
 
 export type Params = {
-  fn: (...inputs: any[]) => number;
+  fn: (...inputs: any[]) => BigNumber;
   fnParams: any[];
-  percentTolerance: number;
+  percentTolerance: BigNumber;
   maxIterations: number;
-  maxStep: number;
-  goal: number;
+  maxStep: BigNumber;
+  goal: BigNumber;
   independentVariableIdx: number;
 };
 
@@ -36,7 +36,7 @@ const goalSeek = ({
   maxStep,
   goal,
   independentVariableIdx,
-}: Params): number => {
+}: Params): BigNumber => {
   ...
 }
 
@@ -56,18 +56,20 @@ The `goalSeek` function takes one object argument with the following keys:
 To use the function, for example, with a simple linear equeation:
 
 ```javascript
+import BigNumber from 'bignumber.js'
+
   let x = 10;
-  const fn = (x: number): number => x + 2;
-  const fnParams = [x];
+  const fn = (x: BigNumber): BigNumber => x.plus(2);
+  const fnParams = [new BigNumber(x)];
 
   try {
     const result = goalSeek({
       fn,
       fnParams,
-      percentTolerance: 1,
+      percentTolerance: new BigNumber(1),
       maxIterations: 1000,
-      maxStep: 10,
-      goal: 100,
+      maxStep: new BigNumber(10),
+      goal: new BigNumber(100),
       independentVariableIdx: 0
     })
   
@@ -83,7 +85,7 @@ This library will throw one of two errors: `IsNanError` or `FailedToConvergeErro
 
 ### IsNanError
 
-`IsNanError` is thrown whenever the result of `fn` returns a value that is not a number. For example, if `fn` is `Math.log`, and the value `-1` is input `goalSeek` with throw `IsNanError`.
+`IsNanError` is thrown whenever the result of `fn` returns a value that is not a BigNumber. For example, if `fn` is `Math.log`, and the value `-1` is input `goalSeek` with throw `IsNanError`.
 
 ### FailedToConvergeError
 
@@ -124,7 +126,7 @@ This work is [licensed](LICENSE) under MIT.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2020 Adam Hanna
+Copyright (c) 2020 Chaitanya Potti
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -144,3 +146,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+## Credits
+
+This package is derivative of the amazing work done by Adam Hanna and his original
+[package](https://github.com/adam-hanna/goal-seek)
