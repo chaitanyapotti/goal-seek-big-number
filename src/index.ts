@@ -1,10 +1,12 @@
+import BigNumber from 'bignumber.js'
+
 export type Params = {
-  fn: (...inputs: any[]) => number;
+  fn: (...inputs: any[]) => BigNumber;
   fnParams: any[];
-  percentTolerance: number;
+  percentTolerance: BigNumber;
   maxIterations: number;
-  maxStep: number;
-  goal: number;
+  maxStep: BigNumber;
+  goal: BigNumber;
   independentVariableIdx: number;
 };
 
@@ -19,52 +21,52 @@ const goalSeek = ({
   maxStep,
   goal,
   independentVariableIdx,
-}: Params): number => {
-  let g: number;
-  let y: number;
-  let y1: number;
-  let oldGuess: number;
-  let newGuess: number;
+}: Params): BigNumber => {
+  let g: BigNumber;
+  let y: BigNumber;
+  let y1: BigNumber;
+  let oldGuess: BigNumber;
+  let newGuess: BigNumber;
 
-  const absoluteTolerance = (percentTolerance / 100) * goal;
+  const absoluteTolerance = percentTolerance.div(new BigNumber(100)).times(goal);
 
   // iterate through the guesses
   for (let i = 0; i < maxIterations; i++) {
     // define the root of the function as the error
-    y = fn.apply(null, fnParams) - goal;
-    if (isNaN(y)) throw IsNanError;
+    y = fn.apply(null, fnParams).minus(goal);
+    if (y.isNaN()) throw IsNanError;
 
     // was our initial guess a good one?
-    if (Math.abs(y) <= Math.abs(absoluteTolerance)) return fnParams[independentVariableIdx];
+    if (y.abs().lte(absoluteTolerance.abs())) return fnParams[independentVariableIdx];
 
     // set the new guess, correcting for maxStep
     oldGuess = fnParams[independentVariableIdx];
-    newGuess = oldGuess + y;
-    if (Math.abs(newGuess - oldGuess) > maxStep) {
-      if (newGuess > oldGuess) {
-        newGuess = oldGuess + maxStep;
+    newGuess = oldGuess.plus(y);
+    if (newGuess.minus(oldGuess).abs().gt(maxStep)) {
+      if (newGuess.gt(oldGuess)) {
+        newGuess = oldGuess.plus(maxStep);
       } else {
-        newGuess = oldGuess - maxStep;
+        newGuess = oldGuess.minus(maxStep);
       }
     }
 
     fnParams[independentVariableIdx] = newGuess;
 
     // re-run the fn with the new guess
-    y1 = fn.apply(null, fnParams) - goal;
-    if (isNaN(y1)) throw IsNanError;
+    y1 = fn.apply(null, fnParams).minus(goal);
+    if (y1.isNaN()) throw IsNanError;
 
     // calculate the error
-    g = (y1 - y) / y;
-    if (g === 0) g = 0.0001;
+    g = (y1.minus(y)).div(y);
+    if (g.eq(new BigNumber('0'))) g = new BigNumber('0.0001');
 
     // set the new guess based on the error, correcting for maxStep
-    newGuess = oldGuess - y / g;
-    if (maxStep && Math.abs(newGuess - oldGuess) > maxStep) {
-      if (newGuess > oldGuess) {
-        newGuess = oldGuess + maxStep;
+    newGuess = oldGuess.minus(y.div(g));
+    if (maxStep && newGuess.minus(oldGuess).abs().gt(maxStep)) {
+      if (newGuess.gt(oldGuess)) {
+        newGuess = oldGuess.plus(maxStep);
       } else {
-        newGuess = oldGuess - maxStep;
+        newGuess = oldGuess.minus(maxStep);
       }
     }
 
